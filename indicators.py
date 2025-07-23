@@ -282,7 +282,7 @@ class TechnicalIndicators:
         except Exception as e:
             logger.error(f"Ошибка расчета Volume Tsunami: {e}")
             return {}
-                def _calculate_neural_macd(self, data: pd.DataFrame) -> Dict[str, Any]:
+            def _calculate_neural_macd(self, data: pd.DataFrame) -> Dict[str, Any]:
         """Расчет Neural MACD+"""
         try:
             # Базовый MACD
@@ -540,4 +540,3 @@ class TechnicalIndicators:
                 
         except Exception as e:
             return 0.0
-            
