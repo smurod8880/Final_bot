@@ -282,8 +282,7 @@ class TechnicalIndicators:
         except Exception as e:
             logger.error(f"Ошибка расчета Volume Tsunami: {e}")
             return {}
-            
-    def _calculate_neural_macd(self, data: pd.DataFrame) -> Dict[str, Any]:
+                def _calculate_neural_macd(self, data: pd.DataFrame) -> Dict[str, Any]:
         """Расчет Neural MACD+"""
         try:
             # Базовый MACD
@@ -501,5 +500,44 @@ class TechnicalIndicators:
                 sar.iloc[i] = sar.iloc[i-1] - af * (sar.iloc[i-1] - ep)
                 
                 if data['low'].iloc[i] < ep:
-              			ep = data['low'].iloc[i]
-                  	
+                    ep = data['low'].iloc[i]
+                    af = min(af + acceleration, maximum)
+                    
+                if data['high'].iloc[i] > sar.iloc[i]:
+                    trend = 1
+                    sar.iloc[i] = ep
+                    af = acceleration
+                    ep = data['high'].iloc[i]
+                    
+        return sar
+        
+    def _calculate_rsi_divergence(self, data: pd.DataFrame, rsi: pd.Series) -> float:
+        """Расчет дивергенции RSI"""
+        try:
+            # Упрощенный расчет дивергенции
+            price_slope = self._calculate_slope(data['close'])
+            rsi_slope = self._calculate_slope(rsi)
+            
+            # Дивергенция когда цена и RSI идут в разных направлениях
+            if (price_slope > 0 and rsi_slope < 0) or (price_slope < 0 and rsi_slope > 0):
+                return 1.0
+            else:
+                return 0.0
+                
+        except Exception as e:
+            return 0.0
+            
+    def _calculate_macd_divergence(self, data: pd.DataFrame, macd: pd.Series) -> float:
+        """Расчет дивергенции MACD"""
+        try:
+            price_slope = self._calculate_slope(data['close'])
+            macd_slope = self._calculate_slope(macd)
+            
+            if (price_slope > 0 and macd_slope < 0) or (price_slope < 0 and macd_slope > 0):
+                return 1.0
+            else:
+                return 0.0
+                
+        except Exception as e:
+            return 0.0
+            
