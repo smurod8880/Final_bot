@@ -7,6 +7,7 @@ import asyncio
 import logging
 import numpy as np
 import pandas as pd
+import random
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any, Tuple
 
@@ -476,25 +477,12 @@ class SignalAnalyzer:
             return 30
             
     async def validate_signal_quality(self, signal: Dict[str, Any]) -> bool:
-        """Валидация качества сигнала"""
+        """Валидация качества сигнала (без ограничений)"""
         try:
-            # Проверка минимального интервала между сигналами
-            current_time = datetime.now()
+            # Отключены все проверки лимитов
             signal_key = f"{signal['pair']}_{signal['timeframe']}"
-            
-            if signal_key in self.last_signals:
-                time_diff = (current_time - self.last_signals[signal_key]).total_seconds()
-                if time_diff < 300:  # 5 минут
-                    return False
-                    
-            # Проверка дневного лимита
-            today_signals = len([s for s in self.signal_history if s['timestamp'].date() == current_time.date()])
-            if today_signals >= self.config['daily_signals_target']:
-                return False
-
-          self.last_signals[signal_key] = current_time
-      
-  				return True
-except Exception as e:
-		logger.error(f"Ошибка валидации сигнала: {e}")
-		return False
+            self.last_signals[signal_key] = datetime.now()
+            return True
+        except Exception as e:
+            logger.error(f"Ошибка валидации сигнала: {e}")
+            return False
