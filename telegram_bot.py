@@ -6,6 +6,10 @@ class TelegramBotHandler:
         self.token = token
         self.chat_id = chat_id
 
+    async def initialize(self):
+        # Пустой метод для совместимости (не меняет логику)
+        pass
+
     async def send_signal(self, signal):
         direction_emoji = "🟢" if signal['direction'] == 'UP' else "🔴"
         patterns = "\n".join([f"• {p}" for p in signal.get('reasons', [])])
