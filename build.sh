@@ -2,7 +2,7 @@
 echo "🚀 Building QuotexSignalNet System"
 
 echo "🔧 Installing TA-Lib..."
-wget <url id="d20dhe7kgnujtv168e20" type="url" status="failed" title="" wc="0">https://github.com/TA-Lib/ta-lib/archive/refs/tags/v0.4.0.tar.gz</url>
+wget https://github.com/TA-Lib/ta-lib/archive/refs/tags/v0.4.0.tar.gz
 tar -xzvf v0.4.0.tar.gz
 cd ta-lib-0.4.0/
 ./configure --prefix=/usr
