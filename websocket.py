@@ -318,4 +318,3 @@ class BinanceWebSocket:
                     stats['latest_updates'][pair][timeframe] = None
                     
         return stats
-      
