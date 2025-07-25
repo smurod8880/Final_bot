@@ -41,8 +41,8 @@ SAFETY_LIMITS = {
     "min_signal_interval": 60  # минимальный интервал между сигналами, секунд
 }
 
-# Конфиг индикаторов
-INDICATOR_CONFIG = {
+# Конфиг индикаторов (Исправлено: добавлена буква 'S')
+INDICATORS_CONFIG = {  # Было: INDICATOR_CONFIG
     "sma_periods": [9, 21, 50, 200],
     "ema_periods": [9, 21, 50, 200],
     "rsi_period": 14,
