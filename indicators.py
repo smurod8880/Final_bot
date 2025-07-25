@@ -1,13 +1,6 @@
-"""
-Модуль технических индикаторов
-Стратегия "Quantum Precision V2"
-"""
-
 import numpy as np
 import pandas as pd
-from typing import Dict, List, Tuple, Any
 import logging
-from datetime import datetime
 
 from globals import INDICATORS_CONFIG, STRATEGY_CONFIG
 
@@ -18,15 +11,13 @@ class TechnicalIndicators:
         self.config = INDICATORS_CONFIG
         self.strategy_config = STRATEGY_CONFIG
         
-    def calculate_all_indicators(self, data: pd.DataFrame) -> Dict[str, Any]:
-        """Расчет всех технических индикаторов"""
+    def calculate_all_indicators(self, data):
         try:
-            if len(data) < 200:  # Минимум данных для расчета
+            if len(data) < 200:
                 return {}
                 
             indicators = {}
             
-            # Основные индикаторы
             indicators.update(self._calculate_moving_averages(data))
             indicators.update(self._calculate_rsi(data))
             indicators.update(self._calculate_macd(data))
@@ -35,7 +26,6 @@ class TechnicalIndicators:
             indicators.update(self._calculate_momentum_indicators(data))
             indicators.update(self._calculate_volatility_indicators(data))
             
-            # Специальные индикаторы стратегии
             indicators.update(self._calculate_vwap_gradient(data))
             indicators.update(self._calculate_volume_tsunami(data))
             indicators.update(self._calculate_neural_macd(data))
@@ -47,20 +37,16 @@ class TechnicalIndicators:
             logger.error(f"Ошибка расчета индикаторов: {e}")
             return {}
             
-    def _calculate_moving_averages(self, data: pd.DataFrame) -> Dict[str, Any]:
-        """Расчет скользящих средних"""
+    def _calculate_moving_averages(self, data):
         try:
             result = {}
             
-            # Simple Moving Averages
             for period in self.config['sma_periods']:
                 result[f'sma_{period}'] = data['close'].rolling(window=period).mean().iloc[-1]
             
-            # Exponential Moving Averages
             for period in self.config['ema_periods']:
                 result[f'ema_{period}'] = data['close'].ewm(span=period).mean().iloc[-1]
                 
-            # Дополнительные расчеты
             result['sma_20_slope'] = self._calculate_slope(data['close'].rolling(window=20).mean())
             result['ema_crossover'] = 1 if result['ema_9'] > result['ema_21'] else 0
             
@@ -70,8 +56,7 @@ class TechnicalIndicators:
             logger.error(f"Ошибка расчета MA: {e}")
             return {}
             
-    def _calculate_rsi(self, data: pd.DataFrame) -> Dict[str, Any]:
-        """Расчет RSI"""
+    def _calculate_rsi(self, data):
         try:
             period = self.config['rsi_period']
             
@@ -93,8 +78,7 @@ class TechnicalIndicators:
             logger.error(f"Ошибка расчета RSI: {e}")
             return {}
             
-    def _calculate_macd(self, data: pd.DataFrame) -> Dict[str, Any]:
-        """Расчет MACD"""
+    def _calculate_macd(self, data):
         try:
             fast = self.config['macd_fast']
             slow = self.config['macd_slow']
@@ -119,8 +103,7 @@ class TechnicalIndicators:
             logger.error(f"Ошибка расчета MACD: {e}")
             return {}
             
-    def _calculate_bollinger_bands(self, data: pd.DataFrame) -> Dict[str, Any]:
-        """Расчет полос Боллинджера"""
+    def _calculate_bollinger_bands(self, data):
         try:
             period = self.config['bollinger_period']
             std_dev = self.config['bollinger_std']
@@ -146,27 +129,22 @@ class TechnicalIndicators:
             logger.error(f"Ошибка расчета Bollinger Bands: {e}")
             return {}
             
-    def _calculate_volume_indicators(self, data: pd.DataFrame) -> Dict[str, Any]:
-        """Расчет объемных индикаторов"""
+    def _calculate_volume_indicators(self, data):
         try:
             result = {}
             
-            # Volume SMA
             vol_sma = data['volume'].rolling(window=self.config['volume_sma_period']).mean()
             result['volume_sma'] = vol_sma.iloc[-1]
             result['volume_ratio'] = data['volume'].iloc[-1] / vol_sma.iloc[-1]
             
-            # On-Balance Volume
             obv = self._calculate_obv(data)
             result['obv'] = obv.iloc[-1]
             result['obv_trend'] = self._calculate_slope(obv)
             
-            # Volume Weighted Average Price
             vwap = self._calculate_vwap(data)
             result['vwap'] = vwap.iloc[-1]
             result['vwap_deviation'] = (data['close'].iloc[-1] - vwap.iloc[-1]) / vwap.iloc[-1]
             
-            # Money Flow Index
             mfi = self._calculate_mfi(data)
             result['mfi'] = mfi.iloc[-1]
             
@@ -176,30 +154,24 @@ class TechnicalIndicators:
             logger.error(f"Ошибка расчета объемных индикаторов: {e}")
             return {}
             
-    def _calculate_momentum_indicators(self, data: pd.DataFrame) -> Dict[str, Any]:
-        """Расчет индикаторов моментума"""
+    def _calculate_momentum_indicators(self, data):
         try:
             result = {}
             
-            # Stochastic Oscillator
             stoch_k, stoch_d = self._calculate_stochastic(data)
             result['stoch_k'] = stoch_k.iloc[-1]
             result['stoch_d'] = stoch_d.iloc[-1]
             result['stoch_crossover'] = 1 if stoch_k.iloc[-1] > stoch_d.iloc[-1] else 0
             
-            # Williams %R
             williams_r = self._calculate_williams_r(data)
             result['williams_r'] = williams_r.iloc[-1]
             
-            # Commodity Channel Index
             cci = self._calculate_cci(data)
             result['cci'] = cci.iloc[-1]
             
-            # Rate of Change
             roc = self._calculate_roc(data)
             result['roc'] = roc.iloc[-1]
             
-            # Awesome Oscillator
             ao = self._calculate_awesome_oscillator(data)
             result['awesome_oscillator'] = ao.iloc[-1]
             
@@ -209,20 +181,16 @@ class TechnicalIndicators:
             logger.error(f"Ошибка расчета momentum индикаторов: {e}")
             return {}
             
-    def _calculate_volatility_indicators(self, data: pd.DataFrame) -> Dict[str, Any]:
-        """Расчет индикаторов волатильности"""
+    def _calculate_volatility_indicators(self, data):
         try:
             result = {}
             
-            # Average True Range
             atr = self._calculate_atr(data)
             result['atr'] = atr.iloc[-1]
             
-            # Average Directional Index
             adx = self._calculate_adx(data)
             result['adx'] = adx.iloc[-1]
             
-            # Parabolic SAR
             sar = self._calculate_parabolic_sar(data)
             result['parabolic_sar'] = sar.iloc[-1]
             result['sar_signal'] = 1 if data['close'].iloc[-1] > sar.iloc[-1] else 0
@@ -233,18 +201,14 @@ class TechnicalIndicators:
             logger.error(f"Ошибка расчета volatility индикаторов: {e}")
             return {}
             
-    def _calculate_vwap_gradient(self, data: pd.DataFrame) -> Dict[str, Any]:
-        """Расчет VWAP Gradient Scanner"""
+    def _calculate_vwap_gradient(self, data):
         try:
             vwap = self._calculate_vwap(data)
             
-            # Расчет градиента VWAP
             gradient = vwap.diff().rolling(window=5).mean()
             
-            # Нормализация градиента
             gradient_norm = gradient / vwap * 100
             
-            # Сигнал градиента
             gradient_signal = 1 if gradient_norm.iloc[-1] > self.strategy_config['vwap_gradient_threshold'] else 0
             
             return {
@@ -258,18 +222,14 @@ class TechnicalIndicators:
             logger.error(f"Ошибка расчета VWAP Gradient: {e}")
             return {}
             
-    def _calculate_volume_tsunami(self, data: pd.DataFrame) -> Dict[str, Any]:
-        """Расчет Volume Tsunami Detection"""
+    def _calculate_volume_tsunami(self, data):
         try:
             volume_sma = data['volume'].rolling(window=20).mean()
             
-            # Детекция аномального объема
             volume_ratio = data['volume'].iloc[-1] / volume_sma.iloc[-1]
             
-            # Сигнал цунами объема
             tsunami_signal = 1 if volume_ratio > self.strategy_config['volume_multiplier'] else 0
             
-            # Расчет силы цунами
             tsunami_strength = min(volume_ratio / self.strategy_config['volume_multiplier'], 3.0)
             
             return {
@@ -282,24 +242,19 @@ class TechnicalIndicators:
         except Exception as e:
             logger.error(f"Ошибка расчета Volume Tsunami: {e}")
             return {}
-            def _calculate_neural_macd(self, data: pd.DataFrame) -> Dict[str, Any]:
-        """Расчет Neural MACD+"""
+            
+    def _calculate_neural_macd(self, data):
         try:
-            # Базовый MACD
             macd_result = self._calculate_macd(data)
             
-            # Дополнительные слои анализа
             macd_line = data['close'].ewm(span=12).mean() - data['close'].ewm(span=26).mean()
             macd_signal = macd_line.ewm(span=9).mean()
             
-            # Нейронная коррекция на основе волатильности
             volatility = data['close'].pct_change().rolling(window=14).std()
             neural_correction = volatility.iloc[-1] * 0.5
             
-            # Адаптивный MACD
             neural_macd = macd_line.iloc[-1] + neural_correction
             
-            # Сигнал нейронного MACD
             neural_signal = 1 if neural_macd > macd_signal.iloc[-1] else 0
             
             return {
@@ -313,24 +268,18 @@ class TechnicalIndicators:
             logger.error(f"Ошибка расчета Neural MACD: {e}")
             return {}
             
-    def _calculate_quantum_rsi(self, data: pd.DataFrame) -> Dict[str, Any]:
-        """Расчет Quantum RSI"""
+    def _calculate_quantum_rsi(self, data):
         try:
-            # Базовый RSI
             rsi_result = self._calculate_rsi(data)
             
-            # Квантовая коррекция на основе объема
             volume_factor = (data['volume'].iloc[-1] / data['volume'].rolling(window=20).mean().iloc[-1]) * 0.1
             
-            # Адаптивный RSI
             quantum_rsi = rsi_result['rsi'] + volume_factor
-            quantum_rsi = max(0, min(100, quantum_rsi))  # Ограничение 0-100
+            quantum_rsi = max(0, min(100, quantum_rsi))
             
-            # Квантовые уровни
             quantum_overbought = quantum_rsi > 75
             quantum_oversold = quantum_rsi < 25
             
-            # Сигнал квантового RSI
             quantum_signal = 1 if 30 < quantum_rsi < 70 else 0
             
             return {
@@ -345,9 +294,7 @@ class TechnicalIndicators:
             logger.error(f"Ошибка расчета Quantum RSI: {e}")
             return {}
             
-    # Вспомогательные методы
-    def _calculate_slope(self, series: pd.Series, window: int = 5) -> float:
-        """Расчет наклона серии"""
+    def _calculate_slope(self, series, window=5):
         try:
             if len(series) < window:
                 return 0.0
@@ -361,8 +308,7 @@ class TechnicalIndicators:
         except Exception as e:
             return 0.0
             
-    def _calculate_obv(self, data: pd.DataFrame) -> pd.Series:
-        """Расчет On-Balance Volume"""
+    def _calculate_obv(self, data):
         obv = pd.Series(index=data.index, dtype=float)
         obv.iloc[0] = data['volume'].iloc[0]
         
@@ -376,14 +322,12 @@ class TechnicalIndicators:
                 
         return obv
         
-    def _calculate_vwap(self, data: pd.DataFrame) -> pd.Series:
-        """Расчет Volume Weighted Average Price"""
+    def _calculate_vwap(self, data):
         typical_price = (data['high'] + data['low'] + data['close']) / 3
         vwap = (typical_price * data['volume']).cumsum() / data['volume'].cumsum()
         return vwap
         
-    def _calculate_mfi(self, data: pd.DataFrame) -> pd.Series:
-        """Расчет Money Flow Index"""
+    def _calculate_mfi(self, data):
         typical_price = (data['high'] + data['low'] + data['close']) / 3
         money_flow = typical_price * data['volume']
         
@@ -396,8 +340,7 @@ class TechnicalIndicators:
         mfi = 100 - (100 / (1 + positive_mf / negative_mf))
         return mfi
         
-    def _calculate_stochastic(self, data: pd.DataFrame) -> Tuple[pd.Series, pd.Series]:
-        """Расчет Stochastic Oscillator"""
+    def _calculate_stochastic(self, data):
         k_period = self.config['stoch_k']
         d_period = self.config['stoch_d']
         
@@ -409,8 +352,7 @@ class TechnicalIndicators:
         
         return stoch_k, stoch_d
         
-    def _calculate_williams_r(self, data: pd.DataFrame) -> pd.Series:
-        """Расчет Williams %R"""
+    def _calculate_williams_r(self, data):
         period = self.config['williams_period']
         
         high_n = data['high'].rolling(window=period).max()
@@ -419,8 +361,7 @@ class TechnicalIndicators:
         williams_r = -100 * (high_n - data['close']) / (high_n - low_n)
         return williams_r
         
-    def _calculate_cci(self, data: pd.DataFrame) -> pd.Series:
-        """Расчет Commodity Channel Index"""
+    def _calculate_cci(self, data):
         period = self.config['cci_period']
         
         typical_price = (data['high'] + data['low'] + data['close']) / 3
@@ -430,20 +371,17 @@ class TechnicalIndicators:
         cci = (typical_price - sma) / (0.015 * mad)
         return cci
         
-    def _calculate_roc(self, data: pd.DataFrame) -> pd.Series:
-        """Расчет Rate of Change"""
+    def _calculate_roc(self, data):
         period = 12
         roc = 100 * (data['close'] - data['close'].shift(period)) / data['close'].shift(period)
         return roc
         
-    def _calculate_awesome_oscillator(self, data: pd.DataFrame) -> pd.Series:
-        """Расчет Awesome Oscillator"""
+    def _calculate_awesome_oscillator(self, data):
         median_price = (data['high'] + data['low']) / 2
         ao = median_price.rolling(window=5).mean() - median_price.rolling(window=34).mean()
         return ao
         
-    def _calculate_atr(self, data: pd.DataFrame) -> pd.Series:
-        """Расчет Average True Range"""
+    def _calculate_atr(self, data):
         high_low = data['high'] - data['low']
         high_close = np.abs(data['high'] - data['close'].shift())
         low_close = np.abs(data['low'] - data['close'].shift())
@@ -452,8 +390,7 @@ class TechnicalIndicators:
         atr = pd.Series(true_range).rolling(window=14).mean()
         return atr
         
-    def _calculate_adx(self, data: pd.DataFrame) -> pd.Series:
-        """Расчет Average Directional Index"""
+    def _calculate_adx(self, data):
         period = self.config['adx_period']
         
         high_diff = data['high'].diff()
@@ -471,14 +408,13 @@ class TechnicalIndicators:
         
         return adx
         
-    def _calculate_parabolic_sar(self, data: pd.DataFrame) -> pd.Series:
-        """Расчет Parabolic SAR"""
+    def _calculate_parabolic_sar(self, data):
         config = self.config['parabolic_sar']
         acceleration = config['acceleration']
         maximum = config['maximum']
         
         sar = pd.Series(index=data.index, dtype=float)
-        trend = 1  # 1 для uptrend, -1 для downtrend
+        trend = 1
         af = acceleration
         ep = data['high'].iloc[0] if trend == 1 else data['low'].iloc[0]
         sar.iloc[0] = data['low'].iloc[0]
@@ -511,14 +447,11 @@ class TechnicalIndicators:
                     
         return sar
         
-    def _calculate_rsi_divergence(self, data: pd.DataFrame, rsi: pd.Series) -> float:
-        """Расчет дивергенции RSI"""
+    def _calculate_rsi_divergence(self, data, rsi):
         try:
-            # Упрощенный расчет дивергенции
             price_slope = self._calculate_slope(data['close'])
             rsi_slope = self._calculate_slope(rsi)
             
-            # Дивергенция когда цена и RSI идут в разных направлениях
             if (price_slope > 0 and rsi_slope < 0) or (price_slope < 0 and rsi_slope > 0):
                 return 1.0
             else:
@@ -527,8 +460,7 @@ class TechnicalIndicators:
         except Exception as e:
             return 0.0
             
-    def _calculate_macd_divergence(self, data: pd.DataFrame, macd: pd.Series) -> float:
-        """Расчет дивергенции MACD"""
+    def _calculate_macd_divergence(self, data, macd):
         try:
             price_slope = self._calculate_slope(data['close'])
             macd_slope = self._calculate_slope(macd)
