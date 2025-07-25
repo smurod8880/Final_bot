@@ -1,6 +1,7 @@
 """
 Глобальные переменные и настройки системы
 """
+import os
 
 # Параметры торговых пар и таймфреймов
 TRADING_PAIRS = [
@@ -9,8 +10,8 @@ TRADING_PAIRS = [
 TIMEFRAMES = ["1m", "5m", "15m", "30m", "1h", "4h", "1d"]
 
 # Telegram настройки
-BOT_TOKEN = "your_telegram_bot_token"
-CHAT_ID = "your_chat_id"
+BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "your_telegram_bot_token")
+CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "your_chat_id")
 
 # WebSocket Binance
 BINANCE_WS_URL = "wss://stream.binance.com:9443/ws"
