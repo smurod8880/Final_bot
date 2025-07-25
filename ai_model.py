@@ -422,4 +422,3 @@ class AIPredictor:
             
         except Exception as e:
             logger.error(f"Ошибка загрузки модели: {e}")
-              
