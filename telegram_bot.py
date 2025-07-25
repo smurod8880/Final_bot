@@ -7,7 +7,7 @@ async def send_signal(signal):
     
     message = (
         f"{direction_emoji} *QUOTEX SIGNAL* {direction_emoji}\n\n"
-        f"• Активе: `{signal['asset']}`\n"
+        f"• Активе: `{signal['pair']}`\n"
         f"• Таймфрейм: `{signal['timeframe']}`\n"
         f"• Направление: `{signal['direction']}`\n"
         f"• Точность: `{signal['confidence']:.2f}%`\n"
@@ -30,4 +30,3 @@ async def send_signal(signal):
             print(f"Telegram error: {response.text}")
     except Exception as e:
         print(f"Telegram send error: {str(e)}")
-      
