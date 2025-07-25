@@ -160,6 +160,7 @@ class BotController:
     async def _main_trading_loop(self):
         """Основной цикл торговли"""
         try:
+            self.is_running = True
             logger.info("🔄 Запуск основного торгового цикла...")
             
             while self.is_active and not self.emergency_stop:
@@ -452,25 +453,3 @@ class BotController:
             
         except Exception as e:
             logger.error(f"Ошибка настройки обработчиков сигналов: {e}")
-
-async def main():
-    """Точка входа"""
-    # Регистрация обработчиков сигналов
-    signal.signal(signal.SIGINT, signal_handler)
-    signal.signal(signal.SIGTERM, signal_handler)
-    
-    bot = TradingBot()
-    
-    try:
-        await bot.initialize()
-        await bot.run()
-    except KeyboardInterrupt:
-        logger.info("Получен сигнал прерывания")
-    except Exception as e:
-        logger.error(f"Критическая ошибка: {e}")
-    finally:
-        await bot.shutdown()
-
-if __name__ == "__main__":
-    asyncio.run(main())
-  
