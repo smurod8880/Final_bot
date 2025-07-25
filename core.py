@@ -7,6 +7,7 @@ import asyncio
 import logging
 from datetime import datetime
 from typing import Dict, List, Any, Optional
+import os
 
 from globals import TRADING_PAIRS, TIMEFRAMES, STRATEGY_CONFIG
 from database import Database
@@ -104,7 +105,7 @@ class TradingCore:
             
             # Попытка загрузки сохраненной модели
             try:
-                model_path = "/app/data/models/trading_model.json"
+                model_path = "trading_model.json"
                 self.ai_predictor.load_model(model_path)
                 logger.info("📁 Модель загружена из файла")
             except Exception as e:
@@ -217,7 +218,7 @@ class TradingCore:
                     await self.ai_predictor.retrain_model()
                     
                     # Сохранение модели
-                    model_path = "/app/data/models/trading_model.json"
+                    model_path = "trading_model.json"
                     self.ai_predictor.save_model(model_path)
                     
                     logger.info("🤖 AI модель переобучена и сохранена")
@@ -351,7 +352,7 @@ class TradingCore:
             # Сохранение AI модели
             if self.ai_predictor:
                 try:
-                    model_path = "/app/data/models/trading_model.json"
+                    model_path = "trading_model.json"
                     self.ai_predictor.save_model(model_path)
                     logger.info("💾 AI модель сохранена")
                 except Exception as e:
@@ -385,4 +386,3 @@ class TradingCore:
         except Exception as e:
             logger.error(f"Ошибка получения статуса: {e}")
             return {}
-          
