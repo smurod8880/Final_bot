@@ -7,7 +7,7 @@ class TelegramBotHandler:
         self.chat_id = chat_id
 
     async def initialize(self):
-        # Пустой метод для совместимости (не меняет логику)
+        # Пустой метод для совместимости
         pass
 
     async def send_signal(self, signal):
@@ -39,3 +39,6 @@ class TelegramBotHandler:
                 print(f"Telegram error: {response.text}")
         except Exception as e:
             print(f"Telegram send error: {str(e)}")
+
+    # Добавляем псевдоним send_message для send_signal
+    send_message = send_signal
