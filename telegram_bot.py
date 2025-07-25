@@ -1,5 +1,5 @@
 import requests
-from config import *
+from globals import BOT_TOKEN, CHAT_ID  # Используем переменные из globals.py
 
 async def send_signal(signal):
     direction_emoji = "🟢" if signal['direction'] == 'UP' else "🔴"
@@ -7,7 +7,7 @@ async def send_signal(signal):
     
     message = (
         f"{direction_emoji} *QUOTEX SIGNAL* {direction_emoji}\n\n"
-        f"• Активе: `{signal['pair']}`\n"
+        f"• Актив: `{signal['pair']}`\n"
         f"• Таймфрейм: `{signal['timeframe']}`\n"
         f"• Направление: `{signal['direction']}`\n"
         f"• Точность: `{signal['confidence']:.2f}%`\n"
@@ -17,9 +17,9 @@ async def send_signal(signal):
         f"_Сгенерировано AI QuotexSignalNet v1.0_"
     )
     
-    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"  # Убран лишний пробел
     payload = {
-        'chat_id': TELEGRAM_CHAT_ID,
+        'chat_id': CHAT_ID,
         'text': message,
         'parse_mode': 'Markdown'
     }
