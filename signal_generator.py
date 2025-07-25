@@ -1,4 +1,6 @@
 import asyncio
+import os
+import uvicorn
 from data_manager import RealTimeData
 from feature_engineer import FeatureEngineer
 from model_ensemble import HybridModel
@@ -41,9 +43,8 @@ if __name__ == "__main__":
     else:
         # Для продакшена
         uvicorn.run(
-            app,
+            "app",
             host=host,
             port=port,
             log_level="info"
         )
-      
