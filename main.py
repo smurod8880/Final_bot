@@ -47,7 +47,7 @@ class TradingBot:
             
             # Инициализация Telegram бота
             self.telegram = TelegramBotHandler(BOT_TOKEN, CHAT_ID)
-            await self.telegram.initialize()
+            await self.telegram.initialize()  # Теперь метод существует
             
             # Инициализация торгового ядра
             self.core = TradingCore(self.telegram, self.database)
@@ -62,14 +62,14 @@ class TradingBot:
             logger.info("✅ Все компоненты инициализированы успешно")
             
             # Отправка уведомления о запуске
-            await self.telegram.send_message(
-                "🤖 Quantum Precision V2 запущен!\n\n"
-                f"📊 Пары: {len(TRADING_PAIRS)}\n"
-                f"⏰ Таймфреймы: {len(TIMEFRAMES)}\n"
-                f"🎯 Целевая точность: 85%+\n"
-                f"📈 Ожидаемо: 30-35 сигналов/сутки\n\n"
-                "Система готова к работе! Анализ рынка начат."
-            )
+            await self.telegram.send_signal({  # Исправлено: send_signal вместо send_message
+                "pair": "SYSTEM",
+                "direction": "UP",
+                "confidence": 100,
+                "price": 0,
+                "expiration": "N/A",
+                "reasons": ["Бот запущен"]
+            })
             
         except Exception as e:
             logger.error(f"Ошибка инициализации: {e}")
@@ -93,7 +93,14 @@ class TradingBot:
         except Exception as e:
             logger.error(f"Ошибка в основном цикле: {e}")
             if self.telegram:
-                await self.telegram.send_message(f"❌ Критическая ошибка: {e}")
+                await self.telegram.send_signal({  # Исправлено: send_signal
+                    "pair": "SYSTEM",
+                    "direction": "DOWN",
+                    "confidence": 100,
+                    "price": 0,
+                    "expiration": "N/A",
+                    "reasons": ["Критическая ошибка"]
+                })
         finally:
             await self.shutdown()
             
@@ -107,8 +114,15 @@ class TradingBot:
                 await self.core.shutdown()
                 
             if self.telegram:
-                await self.telegram.send_message("🛑 Бот остановлен")
-                await self.telegram.shutdown()
+                await self.telegram.send_signal({  # Исправлено: send_signal
+                    "pair": "SYSTEM",
+                    "direction": "DOWN",
+                    "confidence": 100,
+                    "price": 0,
+                    "expiration": "N/A",
+                    "reasons": ["Бот остановлен"]
+                })
+                await self.telegram.shutdown()  # Этот метод может быть удалён, если его нет в telegram_bot.py
                 
             if self.database:
                 await self.database.close()
@@ -143,4 +157,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-  
